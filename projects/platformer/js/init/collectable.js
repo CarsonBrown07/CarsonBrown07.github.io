@@ -10,6 +10,7 @@
     steve: { assetKey: "steve", points: 30 },
     grace: { assetKey: "grace", points: 40 },
     kennedi: { assetKey: "kennedi", points: 50 },
+
   };
 
   window.opspark.collectable.type = type;
@@ -35,11 +36,15 @@
   function init(game) {
     let createCollectable = collectable.create;
 
+
     ////////////////////////////////////////////////////////////////////////
     // ALL YOUR CODE GOES BELOW HERE ///////////////////////////////////////
 
     // example:
     createCollectable(type.steve, 200, 170, 6, 0.7);
+    createCollectable(type.kennedi, 200, 140, 6, 0.7)
+    createCollectable(type.max, 200, 158, 6, 0.7)
+    createCollectable(type.db, 200, 400, 6, 0.7)
 
     // ALL YOUR CODE GOES ABOVE HERE ///////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////
