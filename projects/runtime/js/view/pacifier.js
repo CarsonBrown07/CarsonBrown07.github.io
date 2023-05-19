@@ -1,29 +1,50 @@
 (function (window) {
     window.opspark = window.opspark || {};
-    
-    window.opspark.makePacifier = function (target, options) {
-        options = (options ? options : {
-              lines: 13 // The number of lines to draw
-            , length: 28 // The length of each line
-            , width: 14 // The line thickness
-            , radius: 42 // The radius of the inner circle
-            , scale: 1 // Scales overall size of the spinner
-            , corners: 1 // Corner roundness (0..1)
-            , color: '#000' // #rgb or #rrggbb or array of colors
-            , opacity: 0.25 // Opacity of the lines
-            , rotate: 0 // The rotation offset
-            , direction: 1 // 1: clockwise, -1: counterclockwise
-            , speed: 1 // Rounds per second
-            , trail: 60 // Afterglow percentage
-            , fps: 20 // Frames per second when using setTimeout() as a fallback for CSS
-            , zIndex: 2e9 // The z-index (defaults to 2000000000)
-            , className: 'spinner' // The CSS class to assign to the spinner
-            , top: '50%' // Top position relative to parent
-            , left: '50%' // Left position relative to parent
-            , shadow: false // Whether to render a shadow
-            , hwaccel: false // Whether to use hardware acceleration
-            , position: 'absolute' // Element positioning
-        });
-        return new Spinner(options).spin(target);
-    };
-}(window));
+    var world = window.opspark.world = window.opspark.world || {};
+   
+    var physikz = window.opspark.racket.physikz;
+   
+    var _spring;
+   
+    world.makeRules = function(spring) {
+        _spring = (spring ? spring : 0.009);
+       
+        var rules = {
+            spring: _spring,
+            handleCollision: handleCollision
+        };
+       
+        return rules;
+    }
+   
+    function handleCollision(distanceProperties, hitResult, impactProperties) {
+        var bodyA, bodyB, distanceX, distanceY, distance, radiusCombined;
+       
+        bodyA = distanceProperties.bodyA;
+        bodyB = distanceProperties.bodyB;
+        distanceX = distanceProperties.distanceX;
+        distanceY = distanceProperties.distanceY;
+        distance = distanceProperties.distance;
+        radiusCombined = hitResult.radiusCombined;
+       
+        var tx = bodyA.x + distanceX / distance * radiusCombined;
+        var ty = bodyA.y + distanceY / distance * radiusCombined;
+        var ax = (tx - bodyB.x) * _spring;
+        var ay = (ty - bodyB.y) * _spring;
+
+
+        // the only collisions we want to deal with are projectile and an element,
+        if(bodyB.type == 'projectile') {
+            bodyA.handleCollision(impactProperties.impact, bodyB);
+            bodyB.velocityX += ax;
+            bodyB.velocityY += ay;
+        }
+        if(bodyA.type == 'projectile') {
+            bodyB.handleCollision(impactProperties.impact, bodyA);
+            bodyA.velocityX -= ax;
+            bodyA.velocityY -= ay;
+        }
+    }
+   
+   
+})(window);
